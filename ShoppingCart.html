@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <Script src="../Lib/cart.js"></Script>
+    <script src="../Lib/order.js"></script>
+    <script src="products.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div>
+        <div class="search"><input type="text" id="search" /></div>
+        <div id="shop">
+            Product is loading...
+        </div>
+     
+    </div>
+    <div id="bill">
+    </div>
+    <script>        
+        /* Cart = 🛒 */
+
+        Shop(items);
+        let cart = new Cart("cart");
+        Bill();
+        
+        // Search
+        let search=document.querySelector("#search");
+        search.addEventListener("input",(e)=>{
+           
+            let products=items.filter((item)=>{
+                return item.name.toLocaleLowerCase().includes(e.target.value.toLocaleLowerCase());
+            });
+
+            Shop(products);
+
+        });
+
+        function Shop(products) {
+            let html = `<div class="products">`;           
+            products.forEach((item) => {               
+                html += `<div class="card">
+                <div class="card-img">
+                  <img src="img/${item.photo}" height="100" />
+                </div>          
+                <div class="card-body">
+                    ${item.name} <br>   
+                  Price: ${item.price}               
+                </div>
+                <div class="card-footer">                
+                 <input type='button' onclick='cart.add(${JSON.stringify(item)});Bill()' value='🛒' />               
+               </div>
+            </div>`;
+            });
+
+            html += "</div>";
+            let shop = document.querySelector("#shop");
+            shop.innerHTML = html;
+        }
+       
+        function Bill() {
+            let wishlist=cart.get();
+            let html = "<table>";
+            html += "<tr><th>SN</th><th>Name</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr>";
+            let sn = 1;
+            let total = 0;
+            wishlist.forEach((item) => {
+                let lineTotal = item.qty * item.price;
+                total += lineTotal;
+                html += `<tr>
+                <td>${sn++}</td>
+                <td class="item"><img src="img/${item.photo}" height="30" /> ${item.name}</td>
+                <td>${item.qty}</td>
+                <td>${item.price}</td>                
+                <td>${lineTotal}</td>
+                <td>
+                <div class="btn-group">
+                <input onclick='cart.inc(${item.id});Bill()' type="button" class="add" value="+"/>
+                <input onclick='cart.dec(${item.id});Bill()' type="button" class="sub" data-id="${item.id}" value="-"/>
+                <input onclick='cart.delete(${item.id});Bill()' type="button" class="delete" data-id="${item.id}" value="x"/>
+                </div>
+                </td></tr>`;
+            });
+            html += `<tr>
+            <th colspan="4">Total</th>
+            <th>${total}</th>
+            <th><input type="button" onclick="cart.clear();Bill()" value="Clear" /> </th></tr>`;
+            html += "</table>";
+
+            let bill = document.querySelector("#bill");
+            bill.innerHTML = html;
+        }
+
+    </script>
+</body>
+
+</html>
